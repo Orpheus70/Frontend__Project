@@ -25,6 +25,15 @@ body {
     left: 0;
     width: 100%;
     height: 147px;
+    background: rgba(222, 222, 222, 0.98);
+}
+
+@supports (backdrop-filter: blur(20px)) {
+    .page-header {
+        backdrop-filter: blur(20px);
+        background: rgba(222, 222, 222, 0.5);
+        z-index: 100;
+    }
 }
 
 .page-header__container {
@@ -166,5 +175,37 @@ body {
     object-fit: cover;
 }
 
-.events-card__title {   
+.events-card__title {}
+
+.reserve {
+    display: grid;
+    gap: 67px 150px;
+    grid-template-columns: 405px calc(89% - 405px);
+    grid-template-areas:
+        "chekbox scheme"
+        "order legend";
+}
+
+.reserve__chekbox {
+    grid-area: chekbox;
+    background-color: red;
+    height: 100px;
+}
+
+.reserve__scheme {
+    grid-area: scheme;
+    background-color: yellow;
+    height: 100px;
+}
+
+.reserve__order {
+    grid-area: order;
+    background-color: green;
+    height: 100px;
+}
+
+.reserve__legend {
+    grid-area: legend;
+    background-color: blue;
+    height: 100px;
 }
