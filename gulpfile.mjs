@@ -1,7 +1,6 @@
 import gulp from "gulp";
 import del from "del";
-import autoprefixer from "autoprefixer";
-import include from "gulp-format-html";
+import include from "gulp-file-include";
 import plumber from "gulp-plumber";
 import formatHtml from "gulp-format-html";
 import less from "gulp-less";
@@ -14,13 +13,16 @@ import terser from "gulp-terser";
 import imagemin from "gulp-imagemin";
 import imagemin_gifsicle from "imagemin-gifsicle";
 import imagemin_mozjpeg from "imagemin-mozjpeg";
-import imagemin_optpng from "imagemin-optpng";
+import imagemin_optipng from "imagemin-optipng";
 import svgmin from "gulp-svgmin";
 import svgstore from "gulp-svgstore";
+
+import server from "browser-sync";
 
 const resources = {
   html: "src/html/**/*.html",
   less: "src/styles/**/*.less",
+  jsDev: "src/scripts/dev/**.*.js",
   jsVendor: "src/scripts/vendor/**/*.js",
   static: [
     "src/assets/icons/**/*.*",
@@ -116,7 +118,7 @@ function images() {
       imagemin([
         imagemin_gifsicle({ interlaced: true }),
         imagemin_mozjpeg({ quality: 100, progressive: true }),
-        imagemin_optpng({ optimizationLevel: 3 })
+        imagemin_optipng({ optimizationLevel: 3 })
       ])
     )
     .pipe(gulp.dest("dist/assets/images"))
@@ -151,3 +153,39 @@ const build = gulp.series(
   images,
   svgSprite
 );
+
+function reloadServer(done) {
+  server.reload();
+  done();
+}
+
+function serve() {
+  server.init(
+    {
+      server: "dist"
+    }
+  );
+  gulp.watch(resources.html, gulp.series(includeHtml, reloadServer));
+  gulp.watch(resources.less, gulp.series(style, reloadServer));
+  gulp.watch(resources.jsDev, gulp.series(js, reloadServer));
+  gulp.watch(resources.jsVendor, gulp.series(jsCopy, reloadServer));
+  gulp.watch(resources.static, { delay: 500 }, gulp.series(copy, reloadServer));
+  gulp.watch(resources.images, { delay: 500 }, gulp.series(images, reloadServer));
+  gulp.watch(resources.svgSprite, gulp.series(svgSprite, reloadServer));
+}
+
+const start = gulp.series(build, serve);
+
+export {
+  clean,
+  copy,
+  includeHtml,
+  style,
+  js,
+  jsCopy,
+  images,
+  svgSprite,
+  build,
+  serve,
+  start
+};
